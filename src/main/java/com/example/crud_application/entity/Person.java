@@ -5,13 +5,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import static com.example.crud_application.entity.PersonLimit.MAX_EMAIL_LENGTH;
+import static com.example.crud_application.entity.PersonLimit.MAX_FIRSTNAME_LENGTH;
+import static com.example.crud_application.entity.PersonLimit.MAX_LASTNAME_LENGTH;
+
 @Entity
+@Table(name = "person")
 @Getter
 @Setter
 @Builder
@@ -19,16 +25,34 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Person {
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(
+            name = "email",
+            unique = true,
+            nullable = false,
+            length = MAX_EMAIL_LENGTH
+    )
     private String email;
 
-    @Column(nullable = false)
+    @Column(
+            name = "firstname",
+            nullable = false,
+            length = MAX_FIRSTNAME_LENGTH
+
+    )
     private String firstname;
-    @Column(nullable = false)
+    @Column(
+            name = "lastname",
+            nullable = false,
+            length = MAX_LASTNAME_LENGTH
+    )
     private String lastname;
-    @Column()
+    @Column(
+            name = "middlename",
+            length = MAX_LASTNAME_LENGTH
+    )
     private String middlename;
 }

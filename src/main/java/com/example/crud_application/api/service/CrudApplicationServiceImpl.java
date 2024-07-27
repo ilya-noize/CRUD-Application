@@ -29,6 +29,7 @@ public class CrudApplicationServiceImpl implements CrudApplicationService {
 
             throw new CrudApplicationEmailExistsException(format("E-mail %s exists.", email));
         }
+
         Person person = repository.save(mapper.toEntityFromNewDto(personNewDto));
 
         log.debug("Created Person with ID {}.", person.getId());
@@ -39,11 +40,26 @@ public class CrudApplicationServiceImpl implements CrudApplicationService {
     @Override
     public PersonDto update(PersonUpdateDto personUpdateDto) {
         Long id = personUpdateDto.getId();
-        if(!repository.existsById(id)) {
-            throw new CrudApplicationNotFoundException(format(PERSON_WITH_ID_NOT_FOUND, id));
-        }
+        Person person = repository.findById(id).orElseThrow(
+                () -> new CrudApplicationNotFoundException(format(PERSON_WITH_ID_NOT_FOUND, id))
+        );
+        Person personUpdate = mapper.toEntityFromUpdateDto(personUpdateDto);
 
-        Person person = repository.save(mapper.toEntityFromUpdateDto(personUpdateDto));
+        personUpdate.setEmail(person.getEmail());
+
+        String firstname = personUpdate.getFirstname();
+        if (firstname == null || firstname.equals(person.getFirstname())) {
+            personUpdate.setFirstname(person.getFirstname());
+        }
+        String lastname = personUpdate.getLastname();
+        if (lastname == null || lastname.equals(person.getLastname())) {
+            personUpdate.setLastname(person.getLastname());
+        }
+        String middlename = personUpdate.getMiddlename();
+        if (middlename == null || middlename.equals(person.getMiddlename())) {
+            personUpdate.setFirstname(person.getMiddlename());
+        }
+        person = repository.save(personUpdate);
         log.debug("Updated Person with ID {}.", id);
 
         return mapper.toDto(person);
@@ -52,7 +68,7 @@ public class CrudApplicationServiceImpl implements CrudApplicationService {
     @Override
     public PersonDto get(Long id) {
         Person person = repository.findById(id).orElseThrow(
-                ()-> new CrudApplicationNotFoundException(format(PERSON_WITH_ID_NOT_FOUND, id))
+                () -> new CrudApplicationNotFoundException(format(PERSON_WITH_ID_NOT_FOUND, id))
         );
         log.debug("Got person with ID {}.", id);
 
@@ -67,7 +83,7 @@ public class CrudApplicationServiceImpl implements CrudApplicationService {
     @Override
     public void delete(Long id) {
         Person person = repository.findById(id).orElseThrow(
-                ()-> new CrudApplicationNotFoundException(format(PERSON_WITH_ID_NOT_FOUND, id))
+                () -> new CrudApplicationNotFoundException(format(PERSON_WITH_ID_NOT_FOUND, id))
         );
         repository.delete(person);
         log.debug("Deleted person with ID {}", id);

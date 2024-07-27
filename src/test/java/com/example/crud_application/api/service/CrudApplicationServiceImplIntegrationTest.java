@@ -3,6 +3,7 @@ package com.example.crud_application.api.service;
 import com.example.crud_application.api.dto.PersonDto;
 import com.example.crud_application.api.dto.PersonNewDto;
 import com.example.crud_application.api.dto.PersonUpdateDto;
+import com.example.crud_application.exceptions.CrudApplicationNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,8 +11,10 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.UUID;
 
+import static com.example.crud_application.api.service.CrudApplicationServiceImpl.PERSON_WITH_ID_NOT_FOUND;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -21,12 +24,7 @@ class CrudApplicationServiceImplIntegrationTest {
 
     @Test
     void updateFirstName() {
-        PersonNewDto personNewDto = PersonNewDto.builder()
-                .email(getRandomEmail())
-                .firstname("First")
-                .lastname("Last")
-                .middlename("Middle").build();
-        PersonDto personDtoSaved = service.create(personNewDto);
+        PersonDto personDtoSaved = getPersonDtoSaved();
 
         long id = personDtoSaved.getId();
         String update_first = "UPDATE First";
@@ -42,6 +40,16 @@ class CrudApplicationServiceImplIntegrationTest {
         service.delete(id);
     }
 
+    private PersonDto getPersonDtoSaved() {
+
+        return service.create(PersonNewDto.builder()
+                .email(getRandomEmail())
+                .firstname("First")
+                .lastname("Last")
+                .middlename("Middle").build()
+        );
+    }
+
     private static String getRandomEmail() {
 
         return format("%s@mail.com", UUID.randomUUID());
@@ -49,12 +57,7 @@ class CrudApplicationServiceImplIntegrationTest {
 
     @Test
     void updateFirstNameLastName() {
-        PersonNewDto personNewDto = PersonNewDto.builder()
-                .email(getRandomEmail())
-                .firstname("First")
-                .lastname("Last")
-                .middlename("Middle").build();
-        PersonDto personDtoSaved = service.create(personNewDto);
+        PersonDto personDtoSaved = getPersonDtoSaved();
 
         long id = personDtoSaved.getId();
         String update_first = "UPDATE First";
@@ -74,12 +77,7 @@ class CrudApplicationServiceImplIntegrationTest {
 
     @Test
     void updateFirstNameLastNameMiddleName() {
-        PersonNewDto personNewDto = PersonNewDto.builder()
-                .email(getRandomEmail())
-                .firstname("First")
-                .lastname("Last")
-                .middlename("Middle").build();
-        PersonDto personDtoSaved = service.create(personNewDto);
+        PersonDto personDtoSaved = getPersonDtoSaved();
 
         long id = personDtoSaved.getId();
         String update_first = "UPDATE First";
@@ -101,12 +99,7 @@ class CrudApplicationServiceImplIntegrationTest {
 
     @Test
     void updateLastNameMiddleName() {
-        PersonNewDto personNewDto = PersonNewDto.builder()
-                .email(getRandomEmail())
-                .firstname("First")
-                .lastname("Last")
-                .middlename("Middle").build();
-        PersonDto personDtoSaved = service.create(personNewDto);
+        PersonDto personDtoSaved = getPersonDtoSaved();
 
         long id = personDtoSaved.getId();
         String update_last = "UPDATE Last";
@@ -127,12 +120,7 @@ class CrudApplicationServiceImplIntegrationTest {
 
     @Test
     void updateFirstNameMiddleName() {
-        PersonNewDto personNewDto = PersonNewDto.builder()
-                .email(getRandomEmail())
-                .firstname("First")
-                .lastname("Last")
-                .middlename("Middle").build();
-        PersonDto personDtoSaved = service.create(personNewDto);
+        PersonDto personDtoSaved = getPersonDtoSaved();
 
         long id = personDtoSaved.getId();
         String update_first = "UPDATE First";
@@ -154,12 +142,7 @@ class CrudApplicationServiceImplIntegrationTest {
 
     @Test
     void updateMiddleName() {
-        PersonNewDto personNewDto = PersonNewDto.builder()
-                .email(getRandomEmail())
-                .firstname("First")
-                .lastname("Last")
-                .middlename("Middle").build();
-        PersonDto personDtoSaved = service.create(personNewDto);
+        PersonDto personDtoSaved = getPersonDtoSaved();
 
         long id = personDtoSaved.getId();
         String update_middle = "UPDATE Middle";
@@ -175,5 +158,37 @@ class CrudApplicationServiceImplIntegrationTest {
         assertEquals(personDtoSaved.getLastname(), personDtoUpdated.getLastname());
         assertEquals(update_middle, personDtoUpdated.getMiddlename());
         service.delete(id);
+    }
+
+    @Test
+    void get_existsPerson() {
+        PersonDto personDtoSaved = getPersonDtoSaved();
+
+        long id = personDtoSaved.getId();
+        PersonDto personDtoGot = service.get(id);
+        assertEquals(personDtoSaved, personDtoGot);
+        service.delete(id);
+    }
+
+    @Test
+    void get_notExistsPerson() {
+        PersonDto personDtoSaved = getPersonDtoSaved();
+        long id = personDtoSaved.getId();
+        service.delete(id);
+        assertThrows(CrudApplicationNotFoundException.class,
+                () -> service.get(id),
+                format(PERSON_WITH_ID_NOT_FOUND, id));
+    }
+
+
+    @Test
+    void delete_NotExistsPerson() {
+        PersonDto personDtoSaved = getPersonDtoSaved();
+        long id = personDtoSaved.getId();
+
+        service.delete(id);
+        assertThrows(CrudApplicationNotFoundException.class,
+                () -> service.delete(id),
+                format(PERSON_WITH_ID_NOT_FOUND, id));
     }
 }

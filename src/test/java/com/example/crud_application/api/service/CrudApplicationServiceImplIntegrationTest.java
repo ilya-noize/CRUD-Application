@@ -40,21 +40,6 @@ class CrudApplicationServiceImplIntegrationTest {
         service.delete(id);
     }
 
-    private PersonDto getPersonDtoSaved() {
-
-        return service.create(PersonNewDto.builder()
-                .email(getRandomEmail())
-                .firstname("First")
-                .lastname("Last")
-                .middlename("Middle").build()
-        );
-    }
-
-    private static String getRandomEmail() {
-
-        return format("%s@mail.com", UUID.randomUUID());
-    }
-
     @Test
     void updateFirstNameLastName() {
         PersonDto personDtoSaved = getPersonDtoSaved();
@@ -180,7 +165,6 @@ class CrudApplicationServiceImplIntegrationTest {
                 format(PERSON_WITH_ID_NOT_FOUND, id));
     }
 
-
     @Test
     void delete_NotExistsPerson() {
         PersonDto personDtoSaved = getPersonDtoSaved();
@@ -190,5 +174,20 @@ class CrudApplicationServiceImplIntegrationTest {
         assertThrows(CrudApplicationNotFoundException.class,
                 () -> service.delete(id),
                 format(PERSON_WITH_ID_NOT_FOUND, id));
+    }
+
+    private PersonDto getPersonDtoSaved() {
+
+        return service.create(PersonNewDto.builder()
+                .email(getRandomEmail())
+                .firstname("First")
+                .lastname("Last")
+                .middlename("Middle").build()
+        );
+    }
+
+    private static String getRandomEmail() {
+
+        return format("%s@mail.com", UUID.randomUUID());
     }
 }

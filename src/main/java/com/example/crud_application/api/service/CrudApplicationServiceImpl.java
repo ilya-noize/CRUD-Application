@@ -89,11 +89,6 @@ public class CrudApplicationServiceImpl implements CrudApplicationService {
     }
 
     @Override
-    public PersonDto getByParams(Long id) {
-        return null;
-    }
-
-    @Override
     public void delete(Long id) {
         Person person = repository.findById(id).orElseThrow(
                 () -> new CrudApplicationNotFoundException(format(PERSON_WITH_ID_NOT_FOUND, id))

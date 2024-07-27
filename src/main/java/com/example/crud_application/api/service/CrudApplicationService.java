@@ -11,7 +11,5 @@ public interface CrudApplicationService {
 
     PersonDto get(Long id);
 
-    PersonDto getByParams(Long id);
-
     void delete(Long id);
 }

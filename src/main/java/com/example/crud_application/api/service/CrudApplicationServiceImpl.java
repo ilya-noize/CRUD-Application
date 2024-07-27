@@ -22,6 +22,11 @@ public class CrudApplicationServiceImpl implements CrudApplicationService {
     private final CrudApplicationRepository repository;
     private final PersonMapper mapper;
 
+    private static boolean isNullOrEquals(String firstname, String person) {
+
+        return firstname == null || firstname.equals(person);
+    }
+
     @Override
     public PersonDto create(PersonNewDto personNewDto) {
         String email = personNewDto.getEmail();
@@ -43,26 +48,34 @@ public class CrudApplicationServiceImpl implements CrudApplicationService {
         Person person = repository.findById(id).orElseThrow(
                 () -> new CrudApplicationNotFoundException(format(PERSON_WITH_ID_NOT_FOUND, id))
         );
-        Person personUpdate = mapper.toEntityFromUpdateDto(personUpdateDto);
+        Person personAfterMapper = mapper.toEntityFromUpdateDto(personUpdateDto);
+        personAfterMapper.setEmail(person.getEmail());
 
-        personUpdate.setEmail(person.getEmail());
-
-        String firstname = personUpdate.getFirstname();
-        if (firstname == null || firstname.equals(person.getFirstname())) {
-            personUpdate.setFirstname(person.getFirstname());
-        }
-        String lastname = personUpdate.getLastname();
-        if (lastname == null || lastname.equals(person.getLastname())) {
-            personUpdate.setLastname(person.getLastname());
-        }
-        String middlename = personUpdate.getMiddlename();
-        if (middlename == null || middlename.equals(person.getMiddlename())) {
-            personUpdate.setMiddlename(person.getMiddlename());
-        }
-        person = repository.save(personUpdate);
+        person = repository.save(personUpdateFirstLastMiddleNames(personUpdateDto, personAfterMapper, person));
         log.debug("Updated Person with ID {}.", id);
 
         return mapper.toDto(person);
+    }
+
+    private Person personUpdateFirstLastMiddleNames(
+            PersonUpdateDto personUpdateDto,
+            Person personAfterMapper,
+            Person personOrigin
+    ) {
+        String firstname = personUpdateDto.getFirstname();
+        if (isNullOrEquals(firstname, personOrigin.getFirstname())) {
+            personAfterMapper.setFirstname(personOrigin.getFirstname());
+        }
+        String lastname = personUpdateDto.getLastname();
+        if (isNullOrEquals(lastname, personOrigin.getLastname())) {
+            personAfterMapper.setLastname(personOrigin.getLastname());
+        }
+        String middlename = personUpdateDto.getMiddlename();
+        if (isNullOrEquals(middlename, personOrigin.getMiddlename())) {
+            personAfterMapper.setMiddlename(personOrigin.getMiddlename());
+        }
+
+        return personAfterMapper;
     }
 
     @Override

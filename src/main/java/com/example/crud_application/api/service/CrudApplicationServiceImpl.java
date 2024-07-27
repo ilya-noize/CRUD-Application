@@ -57,7 +57,7 @@ public class CrudApplicationServiceImpl implements CrudApplicationService {
         }
         String middlename = personUpdate.getMiddlename();
         if (middlename == null || middlename.equals(person.getMiddlename())) {
-            personUpdate.setFirstname(person.getMiddlename());
+            personUpdate.setMiddlename(person.getMiddlename());
         }
         person = repository.save(personUpdate);
         log.debug("Updated Person with ID {}.", id);
